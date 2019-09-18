@@ -9,7 +9,7 @@ app.use( express.json() );
 app.use( cors() );
 
 const ORM = require('sequelize');
-const connection = new ORM('postgres://games:guest@localhost:5432/games');
+const connection = new ORM('postgres://games:guest@localhost:5432/games', { logging: false });
 
 connection.authenticate()
   .then(()=> console.log('db connection success'))
@@ -49,6 +49,19 @@ app.post('/game', (req, res)=> {
   Game.create( req.body )
     .then(created=> res.json({ created }) )
     .catch(err => res.status(500).json({ message: 'creating game failed' }));
+});
+
+app.patch('/game/:id', (req, res)=>{
+  Game.update(req.body, { where: { id: req.params.id*1 } })
+      .then(()=> res.json({ message: 'success' }))
+      .catch(err => res.status(500).json({ message: JSON.stringify(err) }));
+});
+
+
+app.get('/game/:id', (req, res)=> {
+  Game.findByPk(1*req.params.id)
+      .then(game => res.json({ game }))
+      .catch(err => res.status(500).json({ message: JSON.stringify(err) }));
 });
 
 app.get('/game', (req, res)=> {
